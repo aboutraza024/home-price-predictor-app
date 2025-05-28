@@ -72,6 +72,14 @@ class LoginUser(BaseModel):
     #     return cls(email=email, password=password)
 
 
+class VerificationCode(BaseModel):
+    vcode1: str
+
+class Forget(BaseModel):
+    email:str
+    password:str
+    cpassword:str
+
 class PredictHouse(BaseModel):
     Purpose: str
     home: str
@@ -82,15 +90,10 @@ class PredictHouse(BaseModel):
     Washrooms: int
     Built_in_Year: int
 
+    class Config:
+        allow_population_by_field_name = True
 
-    @classmethod
-    def as_form(cls, Purpose: str = Form(...), home: str = Form(...),
-                Location: str = Form(...), Size: float = Form(...), Parking: int = Form(...),
-                Bedrooms: int = Form(...),
-                Washrooms: int = Form(...), Built_in_Year: int = Form(...),
-                ) -> "PredictHouse":
-        return cls(Purpose=Purpose, home=home, Location=Location, Size=Size, Parking=Parking, Bedrooms=Bedrooms,
-                   Washrooms=Washrooms, Built_in_Year=Built_in_Year)
+
 
 
 # Database helper functions

@@ -5,18 +5,19 @@ from fastapi.responses import JSONResponse
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
-auth_email = os.getenv("email")
-password = os.getenv("password")
-# print(email, password)
+#] print(email, password)
 
 fixed_subject = "Verification Code"
 
 
 # Function to send email
 async def send_verification_code(user_email,verification_code):
+    auth_email = os.getenv("email")
+    password = os.getenv("password")
+
     fixed_message = f"Your 6 digit Verification code: {verification_code}"
     smtp_server = "smtp.gmail.com"
     smtp_port = 587  # TLS port for Gmail
@@ -36,7 +37,6 @@ async def send_verification_code(user_email,verification_code):
 
     except Exception as e:
         print(f"Error sending email: {e}")
-        raise HTTPException(status_code=500, detail="Email not sent successfully")
 #
 # async def main():
 #     await send_email1("razamehar024@gmail.com", "1209345")
