@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI, Form, Depends, HTTPException, Request, BackgroundTasks, File, UploadFile
 from sqlalchemy.orm import Session, sessionmaker, declarative_base
 from sqlalchemy import create_engine, Integer, String, Column
+from typing import Optional
 import random
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -92,6 +93,13 @@ class PredictHouse(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+
+
+
+class PasswordUpdate(BaseModel):
+    password: Optional[str] = None
+    newpassword: Optional[str] = None
+
 
 
 

@@ -1,13 +1,10 @@
-# main.py
-from models import app, SessionLocal
-from auth import send_verification_code
-from fastapi import FastAPI, Form, HTTPException
+from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from passlib.context import CryptContext
 import pandas as pd
 from models import get_user_by_email, get_user_by_email_google, get_user_by_github, create_user_with_github, \
     create_user_with_google, create_user
-from models import UserCreate, LoginUser, Register_With_Email, PredictHouse, Forget
+from models import UserCreate, LoginUser, Register_With_Email, PredictHouse, Forget,PasswordUpdate
 from auth import send_verification_code
 from models import app, SessionLocal
 import uvicorn
@@ -15,6 +12,15 @@ from fastapi import FastAPI, Form, Depends, Request, BackgroundTasks
 from sqlalchemy.orm import Session
 import random
 import joblib
+
+
+from starlette.middleware.sessions import SessionMiddleware
+
+
+
+app.add_middleware(SessionMiddleware, secret_key="Home_Price_App")  # keep this consistent
+
+
 
 model, feature_names = joblib.load("home_price_model.pkl")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -80,10 +86,10 @@ def reg_user(user: UserCreate, backgroundtask: BackgroundTasks, db: Session = De
 
 @app.post("/login")
 def login_user(user: LoginUser, request: Request = None, db: Session = Depends(get_db)):
-    print("HELLO ", user.email)
+
     request.session["user_email"] = user.email
     mail = get_user_by_email(db, email=user.email)
-    print(mail)
+    print(request.session["user_email"])
     if not mail:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -176,46 +182,6 @@ def get_form_data1(Predict: PredictHouse,request: Request):
     print(predicted_price)
     return {"status":200,"estimated_price":float(predicted_price[0])}
 
-from fastapi import FastAPI, Request, Form, Depends, HTTPException
-from sqlalchemy.orm import Session
-from fastapi.responses import JSONResponse
-
-@app.post("/profile")
-def update_profile(
-    request: Request,
-    db: Session = Depends(get_db),
-    password: str = Form(...),
-    newpassword: str = Form(...)
-):
-    email = request.session.get("user_email")
-    print(email)
-
-    if not email:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    user_info = get_user_by_email(db, email)
-    if not user_info:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    name = f"{user_info.first_name} {user_info.last_name}"
-    mail = user_info.email
-    print("HI",name,mail)
-    if password != newpassword:
-        return JSONResponse(
-            status_code=400,
-            content={"message": "Passwords do not match", "name": name, "email": mail}
-        )
-
-    # Update password
-    user_info.password = hash_password(newpassword)
-    db.commit()
-    db.refresh(user_info)
-
-    return {
-        "message": "Password updated successfully",
-        "name": name,
-        "email": mail
-    }
 
 @app.get("/logout")
 def logout(request: Request):
@@ -226,4 +192,4 @@ def logout(request: Request):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="127.0.0.1", port=8002, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8002, reload=True)
