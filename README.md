@@ -1,4 +1,4 @@
-##cHome Price Predictor App running on Browser and Physical device
+### Home Price Predictor App running on Browser and Physical device
 
 
 ## 📦How to connect Flutter frontend with FastAPI backend and run in a physical device
